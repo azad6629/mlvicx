@@ -5,7 +5,7 @@ import torch
 from torch.optim.optimizer import Optimizer, required
 
                 
-class VICRegLARS(Optimizer):
+class LARS(Optimizer):
     def __init__(
         self,
         params,

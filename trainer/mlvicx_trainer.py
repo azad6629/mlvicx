@@ -11,7 +11,7 @@ import yaml
 import os
 import numpy as np
 import importlib
-from optimizer import VICRegLARS as LARS
+from optimizer import LARS
 from utils import log, AverageMeter, collect_params
 import wandb
 import time
@@ -26,12 +26,17 @@ class MLVICXTrainer():
         self.total_epochs  = config['optimizer']['total_epochs']
         self.warmup_epochs = config['optimizer']['warmup_epochs']
         
-        batch_size = config['data']['batch_size']
+        batch_size = config['data']['pre_bs']
         data_ins   = DataLoader(config,self.model_name)
         dataset    = config['data']['dataset']
         
-        self.train_loader,_,_ = data_ins.GetNihDataset()
-        
+        if dataset == 'NIH14':
+            self.train_loader, self.valid_loader, _ = data_ins.GetNihDataset()
+        elif dataset == 'Chex14':
+            self.train_loader, self.valid_loader, self.test_loader = data_ins.GetChex14Dataset()
+        else:
+            raise ValueError(f"Unsupported dataset: {dataset}")
+                
         num_examples = len(self.train_loader)*batch_size
         self.warmup_steps  = self.warmup_epochs * num_examples//batch_size    
         self.total_steps   = self.total_epochs * num_examples //batch_size
@@ -55,10 +60,7 @@ class MLVICXTrainer():
         self.total_training_time = 0
         self.log_step   = self.config['checkpoint']['log_step']
         self.save_epoch = self.config['checkpoint']['save_epoch']
-        
-#         wandb.login()
-#         wandb.init(project=f"{model_name}_{self.method_name}", entity="azad07")
-        
+   
         self.construct_model()
     
     @staticmethod
@@ -114,7 +116,7 @@ class MLVICXTrainer():
             torch.save(online_state, SAVE_PATH2)
             
     def adjust_learning_rate(self, step):
-        base_lr = self.config['optimizer']['base_lr'] * self.config['data']['batch_size'] / 256
+        base_lr = self.config['optimizer']['base_lr'] * self.config['data']['pre_bs'] / 256
         if step < self.warmup_steps:
             lr = base_lr * step / self.warmup_steps
         else:

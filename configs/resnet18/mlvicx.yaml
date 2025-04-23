@@ -21,14 +21,12 @@ model:
   
     
 data:
-  dataset: 'nih'
-  nih:
-      train_df: '<path to the dataset directory>/NIH_Chest-Xray-14/train_label_data.csv'
-      valid_df: '<path to the dataset directory>/NIH_Chest-Xray-14/test_label_data.csv'
-
+  dataset: 'NIH14'   #NIH14 or Chex14
+  data_pct: 100
   resize_size: 224
   data_workers: 16
-  batch_size: 64
+  pre_bs: 256
+  down_vbs: 32
   
 optimizer:
   type: 'lars'

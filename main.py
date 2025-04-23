@@ -20,11 +20,11 @@ parser = argparse.ArgumentParser(description='MLVICX Pre-Training.')
 parser.add_argument('-mode', default = 'ssl',help='ssl or sl')
 parser.add_argument('-tmode', default = 'pre',help='down = downstream transformations or pre=pre-training transformations')
 parser.add_argument('-init', default = 'imagenet',help='random or imagenet')
-parser.add_argument('-model', help='choice of SSL model, choices=model_names')
+parser.add_argument('-model', default = 'mlvicx', help='choice of SSL model, choices=model_names')
 parser.add_argument('-arch', default = 'resnet18', help='model architecture.')
-parser.add_argument('-bs', default=64, type=int, help='batch size.')
+parser.add_argument('-bs', default=256, type=int, help='batch size.')
 parser.add_argument('-epoch', default=300, help='total epoches.')
-parser.add_argument('-dataset', default='nih', help='choice of dataset.')
+parser.add_argument('-dataset', default='Chex14', choices=['NIH14', 'Chex14'],help='Dataset to use')
 parser.add_argument('-resume', default=False, action='store_true', help='To resume the pre-training.')
 parser.add_argument('-seed', default = 42, help='seed for initializing training. ')
 parser.add_argument('-gpu', default=0,help='GPU id to use.')
@@ -39,7 +39,7 @@ def main():
     config['model_name']= args.model
     config['model']['backbone']['type'] = args.arch
     config['data']['dataset']= args.dataset
-    config['data']['batch_size']= args.bs
+    config['data']['pre_bs']= args.bs
     config['optimizer']['total_epochs']= args.epoch
     config['mode'] = args.mode
     config['tmode'] = args.tmode
